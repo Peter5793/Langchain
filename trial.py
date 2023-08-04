@@ -2,7 +2,18 @@ import os
 from langchain import OpenAI
 from langchain.agents import create_pandas_dataframe_agent
 import pandas as pd
+import json
+import sys
 from apikey import api_key
+
+# Setting up the api key
+#import environ 
+#
+#env = environ.Env()
+#environ.Env.read_env()
+#
+#API_KEY = env("api_key")
+
 
 def create_agent(filename: str):
     """

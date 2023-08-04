@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import json
 
-from agent import query_agent, create_agent
+from trial import query_agent, create_agent
 
 def decode_response(response: str) -> dict:
     """
@@ -21,7 +21,7 @@ def write_response(response_dict: dict):
     args:
         response_dict : the reposne from the agent
     
-        Retruns:
+        Returns:
             None
     """
     if "answer" in response_dict:
@@ -47,23 +47,25 @@ def write_response(response_dict: dict):
         st.table(df)
 
     # interface for the app
-    st.title("Make sense of Data")
-    st.write("Please upload your CSV file below")
-    data = st.file_uploader("Upload a CSV")
-    query = st.text_area("Insert your query")
+    
+st.title("Make sense of Data")
 
-    if st.button("Submit Query", ype = "primary"):
-        # create an agent from the CSV file
-        agent = create_agent(data)
+st.write("Please upload your CSV file below")
+data = st.file_uploader("Upload a CSV")
+query = st.text_area("Insert your query")
 
-        # query the agent
-        response = query_agent(agent= agent, query= query)
+if st.button("Submit Query", type = "primary"):
+    # create an agent from the CSV file
+    agent = create_agent(data)
 
-        # decode the response
-        decoded_response  = decoded_response(response)
+    # query the agent
+    response = query_agent(agent= agent, query= query)
 
-        #write the response  to the streamlit app
-        write_response(decoded_response)
+    # decode the response
+    decoded_response  = decode_response(response)
+
+    #write the response  to the streamlit app
+    write_response(decoded_response)
 
 
 
