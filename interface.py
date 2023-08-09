@@ -6,13 +6,33 @@ from trial import query_agent, create_agent
 
 def decode_response(response: str) -> dict:
     """
-     converts the string reponse from the model to dictionary object
-    Agrs:
-        reponse (str): response from the model
+    Converts the string response from the model to a dictionary object.
+    Args:
+        response (str): Response from the model.
     Returns:
-    dict: dictionary with reponse data
+        dict: Dictionary with response data.
     """
-    return json.loads(response)
+    try:
+        parsed_response = json.loads(response)
+        return parsed_response
+    except json.JSONDecodeError:
+        # Handle the case where response contains both final answer and action request
+        response_dict = {"answer": None, "action": None}
+        
+        # Split the response into the final answer and action parts
+        parts = response.split("Action:")
+        
+        for part in parts:
+            if "Final Answer:" in part:
+                response_dict["answer"] = part.strip().replace("Final Answer:", "").strip()
+            elif "python_repl_ast" in part:
+                # Extract the action input (which is in JSON format)
+                action_input = part.split("Action Input:")[1].strip().replace("'", "\"")
+                response_dict["action"] = json.loads(action_input.replace("'", "\""))  # Replace single quotes in action_input
+                
+        return response_dict  
+   
+    
 
 def write_response(response_dict: dict):
     """
@@ -74,9 +94,18 @@ if st.button("Submit Query", type = "primary"):
 
     # query the agent
     response = query_agent(agent= agent, query= query)
+    print("response string:", response)
+
 
     # decode the response
     decoded_response  = decode_response(response)
+
+    try:
+        decoded_response = decode_response(response)
+        print("Decoded Response:", decoded_response)  # Debugging print statement
+    except json.JSONDecodeError as e:
+        print("JSON Decoding Error:", e)
+        print("Problematic Response:", response)
 
     #write the response  to the streamlit app
     write_response(decoded_response)
