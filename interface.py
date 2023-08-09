@@ -16,7 +16,7 @@ def decode_response(response: str) -> dict:
 
 def write_response(response_dict: dict):
     """
-    write a reposne from an agent to a streamlit app
+    write a reposne from an agent to  streamlit app
 
     args:
         response_dict : the reposne from the agent

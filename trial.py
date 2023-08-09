@@ -2,8 +2,6 @@ import os
 from langchain import OpenAI
 from langchain.agents import create_pandas_dataframe_agent
 import pandas as pd
-import json
-import sys
 from apikey import api_key
 
 # Setting up the api key
@@ -31,7 +29,7 @@ def create_agent(filename: str):
     df = pd.read_csv(filename)
 
     # create a pandas dataframe agent
-    return create_pandas_dataframe_agent(llm, df, verbose=False)
+    return create_pandas_dataframe_agent(llm, df, verbose= True)
 
 def query_agent(agent, query):
     """
