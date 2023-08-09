@@ -6,7 +6,7 @@ from trial import query_agent, create_agent
 
 def decode_response(response: str) -> dict:
     """
-     converts the string reponse from the model to dictionary obejct
+     converts the string reponse from the model to dictionary object
     Agrs:
         reponse (str): response from the model
     Returns:
@@ -16,12 +16,12 @@ def decode_response(response: str) -> dict:
 
 def write_response(response_dict: dict):
     """
-    write a reposne from an agent to  streamlit app
+    write a reposne from an agent to a streamlit app
 
     args:
         response_dict : the reposne from the agent
     
-        Returns:
+        Retruns:
             None
     """
     if "answer" in response_dict:
@@ -30,26 +30,40 @@ def write_response(response_dict: dict):
     #check if the response is a bar chart
     if "bar" in response_dict:
         data = response_dict["bar"]
-        df = pd.DataFrame(data)
-        df.set_index("columns",inplace = True)
-        st.bar_chart(df)
+        #initialize a dictionary to build dataframe
+        try:
+            df_data = {
+                col:[x[i] if isinstance (x, list) else x for x in data ['data']]
+                for i, col in enumerate(data['columns'])
+            }
+            df = pd.DataFrame(data)
+            df.set_index("columns",inplace = True)
+            st.bar_chart(df)
+        except ValueError:
+            print(f"Could not create dataframe. {data}")
     # check if the response is a line chart
 
     if "line" in response_dict:
         data = response_dict["line"]
-        df = pd.DataFrame(data)
-        df.set_index("columns", inplace=True)
-        st.line_chart(df)
+        try:
+            df_data = {
+                col:[x[i] if isinstance (x, list) else x for x in data ['data']]
+                for i, col in enumerate(data['columns'])
+            }
+            df = pd.DataFrame(data)
+            df.set_index("columns",inplace = True)
+            st.line_chart(df)
+        except ValueError:
+            print(f"Could not create dataframe. {data}")
+
     #check if the response is a table
     if "table" in response_dict:
         data = response_dict["table"]
         df = pd.DataFrame(data["data"], columns= data["columns"])
         st.table(df)
 
-    # interface for the app
-    
+# interface for the app
 st.title("Make sense of Data")
-
 st.write("Please upload your CSV file below")
 data = st.file_uploader("Upload a CSV")
 query = st.text_area("Insert your query")
@@ -66,7 +80,3 @@ if st.button("Submit Query", type = "primary"):
 
     #write the response  to the streamlit app
     write_response(decoded_response)
-
-
-
-
